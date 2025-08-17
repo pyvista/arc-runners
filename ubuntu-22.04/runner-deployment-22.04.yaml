@@ -1,0 +1,47 @@
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  name: ghrunner-22-04
+  namespace: actions-runner-system
+  annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+spec:
+  replicas: 1
+  template:
+    spec:
+      image: summerwind/actions-runner:v2.328.0-ubuntu-22.04
+      group: "pyvista-self-hosted"
+      labels:
+        - ubuntu-22.04-self-hosted
+        - Linux
+        - X64
+      organization: pyvista
+      env:
+        - name: GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY # temp
+          value: '0' # temp 0|1
+        - name: GIT_SSL_NO_VERIFY # temp
+          value: 'false'
+      resources:
+        requests:
+          cpu: "2"
+          memory: "16Gi"
+        limits:
+          cpu: "2"
+          memory: "16Gi"
+
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: HorizontalRunnerAutoscaler
+metadata:
+  name: ghrunner-runner-autoscalar
+spec:
+  minReplicas: 1
+  maxReplicas: 5
+  scaleTargetRef:
+    kind: RunnerDeployment
+    name: ghrunner
+
+  scaleDownDelaySecondsAfterScaleOut: 300
+
+  metrics:
+  - type: TotalNumberOfQueuedAndInProgressWorkFlowRuns
