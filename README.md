@@ -34,7 +34,10 @@ helm install arc \
     oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
 ```
 
-Create a scale set. The values YAML file uses the `pre-defined-secret` from your GitHub application.
+Be sure you've created a `pre-defined-secret` from your GitHub application in
+the previous step.
+
+Create a scale set:
 
 ```
 RUNNER_SCALE_SET_LABEL="ubuntu-22.04-self-hosted"

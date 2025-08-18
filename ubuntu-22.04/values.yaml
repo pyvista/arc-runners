@@ -9,7 +9,7 @@ template:
   spec:
     containers:
       - name: runner
-        image: ghcr.io/pyvista/arc-runners:ubuntu22.04-d878ec26d5b1e60b6c37a81381b3aeab46833e24
+        image: ghcr.io/pyvista/arc-runners:ubuntu22.04-latest
         imagePullPolicy: Always
         env:
           - name: GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY
