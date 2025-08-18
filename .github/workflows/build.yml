@@ -1,9 +1,16 @@
 name: Build and Push Docker Image
 
-on:
+on: # zizmor: ignore[cache-poisoning]
+  pull_request:
   push:
+    tags:
+      - "*"
     branches:
       - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -35,7 +42,9 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./ubuntu-22.04
-          push: true
-          tags: ghcr.io/pyvista/arc-runners:ubuntu22.04
+          push: ${{ github.ref == 'refs/heads/main' }}
+          tags: |
+            ghcr.io/pyvista/arc-runners:ubuntu22.04-${{ github.sha }}
+            ghcr.io/pyvista/arc-runners:ubuntu22.04-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max

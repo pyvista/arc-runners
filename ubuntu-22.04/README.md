@@ -9,5 +9,5 @@ docker build -t ghcr.io/pyvista/arc-runners:ubuntu22.04 .
 ### Local Debug
 
 ```
-docker run -it --rm docker pull ghcr.io/pyvista/arc-runners:ubuntu22.04 bash
+docker run -it --rm ghcr.io/pyvista/arc-runners:ubuntu22.04 bash
 ```
