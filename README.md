@@ -43,6 +43,8 @@ helm install \
   --namespace "arc-runners" \
   --create-namespace \
   -f ubuntu-22.04/values.yaml \
+  --set githubConfigSecret="pre-defined-secret" \
+  --set githubConfigUrl="https://github.com/pyvista" \
   oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
 ```
 
@@ -51,12 +53,16 @@ deploy a runner set like GitHub's `ubuntu-22.04`. This image is nearly
 identical to GitHub's official image with the notable exception that the image
 was modified to pre-install several `apt` packages used by PyVista.
 
+Upgrade with:
+
 ```
 RUNNER_SCALE_SET_LABEL="ubuntu-22.04-self-hosted"
 helm upgrade
   "${RUNNER_SCALE_SET_LABEL}" \
   --namespace "arc-runners" \
   -f ubuntu-22.04/values.yaml \
+  --set githubConfigSecret="pre-defined-secret" \
+  --set githubConfigUrl="https://github.com/pyvista" \
   oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
 ```
 
