@@ -1,21 +1,11 @@
-apiVersion: actions.summerwind.dev/v1alpha1
-kind: RunnerDeployment
-metadata:
-  name: ghrunner-22-04
-  namespace: actions-runner-system
-  annotations:
-    cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+githubConfigUrl: "https://github.com/pyvista"
 template:
   spec:
     containers:
       - name: runner
         image: ghcr.io/pyvista/arc-runners:ubuntu22.04-latest
         imagePullPolicy: Always
-        env:
-          - name: GITHUB_ACTIONS_RUNNER_TLS_NO_VERIFY
-            value: "0"
-          - name: GIT_SSL_NO_VERIFY
-            value: "false"
+        command: ["/home/runner/run.sh"]
         resources:
           requests:
             cpu: "2"
