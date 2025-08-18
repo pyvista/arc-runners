@@ -65,7 +65,7 @@ One advantage of using ARC is the ability to debug a workflow
 interactively. For example, debug the `ubuntu-22.04` image with:
 
 ```bash
-docker run -it --rm docker pull ghcr.io/pyvista/arc-runners:ubuntu22.04 bash
+docker run -it --rm ghcr.io/pyvista/arc-runners:ubuntu22.04 bash
 ```
 
 Next, within the container install a virtual environment, clone pyvista, and
@@ -73,7 +73,7 @@ run the unit tests:
 
 ```bash
 sudo apt update
-sudo apt install python3.10-venv
+sudo apt install python3.10-venv -y
 cd /tmp
 python3.10 -m venv .venv
 . .venv/bin/activate
