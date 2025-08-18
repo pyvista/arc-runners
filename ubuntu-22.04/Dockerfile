@@ -41,7 +41,24 @@ ENV ImageOS=ubuntu22
 
 # 'gpg-agent' and 'software-properties-common' are needed for the 'add-apt-repository' command that follows
 RUN apt update -y \
-    && apt install -y --no-install-recommends sudo lsb-release gpg-agent software-properties-common curl jq unzip \
+    && apt install -y --no-install-recommends \
+    sudo \
+    lsb-release \
+    gpg-agent \
+    software-properties-common \
+    curl \
+    jq \
+    unzip \
+    xvfb \
+    libxrender1 \
+    libgl1 \
+    libx11-6 \
+    libxi6 \
+    libxext6 \
+    libosmesa6 \
+    libegl1 \
+    libegl1-mesa \
+    libgl1-mesa-glx \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure git-core/ppa based on guidance here:  https://git-scm.com/download/linux
@@ -63,20 +80,5 @@ COPY --chown=runner:docker --from=build /actions-runner .
 COPY --from=build /usr/local/lib/docker/cli-plugins/docker-buildx /usr/local/lib/docker/cli-plugins/docker-buildx
 
 RUN install -o root -g root -m 755 docker/* /usr/bin/ && rm -rf docker
-
-# needed for pyvista
-RUN sudo apt-get update && \
-    sudo apt-get install -y \
-    xvfb \
-    libxrender1 \
-    libgl1 \
-    libx11-6 \
-    libxi6 \
-    libxext6 \
-    libosmesa6 \
-    libegl1 \
-    libegl1-mesa \
-    libgl1-mesa-glx && \
-    sudo rm -rf /var/lib/apt/lists/*
 
 USER runner
