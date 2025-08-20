@@ -61,6 +61,7 @@ RUN apt update -y \
     libgl1-mesa-glx \
     python3-tk \
     pandoc \
+    make \
     && rm -rf /var/lib/apt/lists/*
 
 # Configure git-core/ppa based on guidance here:  https://git-scm.com/download/linux
