@@ -1,0 +1,15 @@
+githubConfigUrl: "https://github.com/pyvista"
+template:
+  spec:
+    containers:
+      - name: runner
+        image: ghcr.io/pyvista/arc-runners:ubuntu22.04-latest
+        imagePullPolicy: Always
+        command: ["/home/runner/run.sh"]
+        resources:
+          requests:
+            cpu: "2"
+            memory: "16Gi"
+          limits:
+            cpu: "8"
+            memory: "32Gi"
