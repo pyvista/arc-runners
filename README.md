@@ -37,7 +37,7 @@ Alternatively directly on the cluster:
 
 ```bash
 kubectl run -i --tty pyvista-shell \
-  --image=ghcr.io/pyvista/arc-runners:ubuntu22.04-gpu \
+  --image=ghcr.io/pyvista/arc-runners:ubuntu22.04-gpu-latest \
   --restart=Never \
   --rm --overrides='
 {
@@ -63,4 +63,53 @@ git clone https://github.com/pyvista/pyvista
 cd pyvista
 pip install -e . --group test
 pytest
+```
+
+
+### Notes
+
+To get EGL to work, it was necessary to use the same version of Ubuntu as the host.
+
+
+```
+
+docker pull kinetica/nvidia-opengl:ubuntu24.04
+docker run --gpus all -it kinetica/nvidia-opengl:ubuntu24.04
+
+Test for GPU visibility
+```
+nvidia-smi 
+```
+
+
+```
+apt-get update && apt-get install mesa-utils-extra -y && eglinfo
+```
+
+
+On the cluster, this was tested with:
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: glvnd-test
+  namespace: default
+spec:
+  restartPolicy: Never
+  runtimeClassName: nvidia
+  containers:
+  - name: pyvista-container
+    image: kinetica/nvidia-opengl:ubuntu24.04
+    command: ["/bin/bash"]
+    stdin: true
+    tty: true
+    resources:
+      limits:
+        nvidia.com/gpu: 1
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      value: all
+    - name: NVIDIA_DRIVER_CAPABILITIES
+      value: all
 ```
