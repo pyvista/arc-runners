@@ -12,62 +12,10 @@ instructions that follow will be generalized to any Kubernetes deployment
 should you choose to also deploy your own scalable runners.
 
 
-### Deployment
+### Cluster Deployment
 
-Follow the instructions at [Quickstart for Actions Runner
-Controller](https://docs.github.com/en/actions/tutorials/use-actions-runner-controller/quickstart). For
-the sake of brevity, here it is summarized:
-
-- You should have access to Kubernetes cluster. If not, install
-  [minikube](https://minikube.sigs.k8s.io/docs/start/) for a local single node
-  cluster.
-- Install [helm](https://github.com/helm/helm)
-- Create a GitHub app to allow the ARC controller to create scale sets at will on GitHub. See [Authenticating ARC to the GitHub API](https://docs.github.com/en/actions/tutorials/use-actions-runner-controller/authenticate-to-the-api#deploying-using-personal-access-token-classic-authentication).
-
-Create the scale set controller:
-
-```
-NAMESPACE="arc-systems"
-helm install arc \
-    --namespace "${NAMESPACE}" \
-    --create-namespace \
-    oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
-```
-
-Be sure you've created a `pre-defined-secret` from your GitHub application in
-the previous step.
-
-Create a scale set:
-
-```
-RUNNER_SCALE_SET_LABEL="ubuntu-22.04-self-hosted"
-helm install \
-  "${RUNNER_SCALE_SET_LABEL}" \
-  --namespace "arc-runners" \
-  --create-namespace \
-  -f ubuntu-22.04/values.yaml \
-  --set githubConfigSecret="pre-defined-secret" \
-  --set githubConfigUrl="https://github.com/pyvista" \
-  oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-```
-
-The above example uses the `values.yaml` from this `ubuntu-22.04` directory to
-deploy a runner set like GitHub's `ubuntu-22.04`. This image is nearly
-identical to GitHub's official image with the notable exception that the image
-was modified to pre-install several `apt` packages used by PyVista.
-
-Upgrade with:
-
-```
-RUNNER_SCALE_SET_LABEL="ubuntu-22.04-self-hosted"
-helm upgrade
-  "${RUNNER_SCALE_SET_LABEL}" \
-  --namespace "arc-runners" \
-  -f ubuntu-22.04/values.yaml \
-  --set githubConfigSecret="pre-defined-secret" \
-  --set githubConfigUrl="https://github.com/pyvista" \
-  oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-```
+Deployment has been automated and simplified via an Ansible playbook. Details
+of this deployment are within `ansible/README.md`.
 
 ### Repository Organization
 
@@ -85,13 +33,29 @@ interactively. For example, debug the `ubuntu-22.04` image with:
 docker run -it --rm ghcr.io/pyvista/arc-runners:ubuntu22.04 bash
 ```
 
+Alternatively directly on the cluster:
+
+```bash
+kubectl run -i --tty pyvista-shell \
+  --image=ghcr.io/pyvista/arc-runners:ubuntu22.04-gpu \
+  --restart=Never \
+  --rm --overrides='
+{
+  "apiVersion": "v1",
+  "spec": {
+    "nodeSelector": {
+      "kubernetes.io/hostname": "sr630-node-0"
+    }
+  }
+}' -- bash
+```
+
 Next, within the container install a virtual environment, clone pyvista, and
 run the unit tests:
 
 ```bash
 sudo apt update
 sudo apt install python3.10-venv -y
-cd /tmp
 python3.10 -m venv .venv
 . .venv/bin/activate
 pip install pip -U

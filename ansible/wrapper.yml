@@ -1,0 +1,10 @@
+---
+
+- hosts: all
+  vars_files:
+    - secrets.yml
+  tasks: []
+
+- import_playbook: k3s.orchestration.site
+- import_playbook: nvidia.agent.yml
+- import_playbook: arc.agent.yml
