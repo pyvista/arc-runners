@@ -29,6 +29,20 @@
       register: nvidia_pkg
       when: install_nvidia | default(false)
 
+    - name: Remove conflicting EGL package
+      apt:
+        name:
+          - libnvidia-egl-gbm1
+        state: absent
+      when: install_nvidia | default(false)
+
+    - name: Install NVIDIA 575 GL server package
+      apt:
+        name:
+          - libnvidia-gl-575-server
+        state: present
+      when: install_nvidia | default(false)
+
     - name: Reboot after NVIDIA driver install if packages changed
       reboot:
         msg: "Rebooting to activate NVIDIA driver"

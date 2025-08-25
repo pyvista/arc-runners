@@ -1,6 +1,7 @@
 githubConfigUrl: "https://github.com/pyvista"
 template:
   spec:
+    runtimeClassName: nvidia
     containers:
       - name: runner
         image: ghcr.io/pyvista/arc-runners:ubuntu24.04-gpu-latest

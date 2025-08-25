@@ -68,22 +68,41 @@ pytest
 
 ### Notes
 
-To get EGL to work, it was necessary to use the same version of Ubuntu as the host.
+To get EGL to work on Ubuntu24.04, it's critical to install the `libnvidia-gl`
+package that matches the installed version of your NVIDIA drivers. For example,
+`libnvidia-gl-575-server`. Without this, even with EGL installed on the
+container, EGL will not be exposed to the container.
+
+Only once the drivers are correctly installed will you be able to see the GPU
+from docker when running `pyvista.Report()`:
+
+```
+  Date: Mon Aug 25 21:11:52 2025 UTC
+
+                OS : Linux (Ubuntu 24.04)
+            CPU(s) : 48
+           Machine : x86_64
+      Architecture : 64bit
+       Environment : Python
+        GPU Vendor : NVIDIA Corporation
+      GPU Renderer : Quadro P2000/PCIe/SSE2
+       GPU Version : 4.6.0 NVIDIA 575.57.08
+     Render Window : vtkEGLRenderWindow
+  MathText Support : True
+```
 
 
 ```
 
 docker pull kinetica/nvidia-opengl:ubuntu24.04
 docker run --gpus all -it kinetica/nvidia-opengl:ubuntu24.04
+```
 
-Test for GPU visibility
+Test for GPU visibility and EGL info:
+
 ```
 nvidia-smi 
-```
-
-
-```
-apt-get update && apt-get install mesa-utils-extra -y && eglinfo
+apt-get update && apt-get install mesa-utils-extra -y && eglinfo | grep NVIDIA
 ```
 
 
@@ -107,9 +126,4 @@ spec:
     resources:
       limits:
         nvidia.com/gpu: 1
-    env:
-    - name: NVIDIA_VISIBLE_DEVICES
-      value: all
-    - name: NVIDIA_DRIVER_CAPABILITIES
-      value: all
 ```
