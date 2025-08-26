@@ -17,6 +17,6 @@ k3s_cluster:
     ansible_user: rasp-cnode
     ansible_become: yes
     ansible_become_pass: AhxnDqZSul6V
-    k3s_version: v1.30.2+k3s1
+    k3s_version: v1.31.11+k3s1
     token: "{{ k3s_token }}"
     api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] | default(groups['server'][0]) }}"
