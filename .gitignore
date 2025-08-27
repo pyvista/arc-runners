@@ -1,0 +1,6 @@
+# secrets
+gh-app-secret.yaml
+ansible/secrets.yml
+
+# emacs
+*~

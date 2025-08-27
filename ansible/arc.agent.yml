@@ -1,0 +1,79 @@
+- name: Deploy ARC Scale Set Controller and create secret
+  hosts: server[0]
+  become: yes
+  tasks:
+    - name: Check if ARC Helm release exists
+      command: helm status arc -n arc-systems
+      register: arc_status
+      failed_when: false
+      changed_when: false
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Install ARC Scale Set Controller
+      command: >
+        helm install arc
+        --namespace arc-systems
+        --create-namespace
+        oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      when: arc_status.rc != 0
+
+    - name: Ensure arc-runners namespace exists
+      shell: kubectl create namespace arc-runners --dry-run=client -o yaml | kubectl apply -f -
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Copy ARC secret YAML to remote host
+      copy:
+        src: ../../arc-runners/gh-app-secret.yaml
+        dest: /tmp/gh-app-secret.yaml
+        mode: '0644'
+
+    - name: Apply ARC pre-defined secret if not present
+      shell: |
+        kubectl get secret gh-app-secret --kubeconfig=/etc/rancher/k3s/k3s.yaml >/dev/null 2>&1 || \
+        kubectl apply -f /tmp/gh-app-secret.yaml --kubeconfig=/etc/rancher/k3s/k3s.yaml
+      changed_when: "'configured' in result.stdout or result.rc == 0"
+      register: result      
+
+- name: Deploy ARC Runner Scale Set
+  hosts: server[0]
+  become: yes
+  tasks:
+    - name: Copy ubuntu-24.04-gpu values.yaml to remote host
+      copy:
+        src: ../../arc-runners/ubuntu-24.04-gpu/values.yaml
+        dest: /tmp/ubuntu-24.04-gpu-values.yaml
+        mode: '0644'
+
+    - name: Install ubuntu-24.04-gpu runner scale set
+      command: >
+        helm upgrade ubuntu-24.04-self-hosted-gpu
+        --install
+        --namespace arc-runners
+        -f /tmp/ubuntu-24.04-gpu-values.yaml
+        --set githubConfigSecret=pre-defined-secret
+        --set githubConfigUrl=https://github.com/pyvista
+        oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Copy ubuntu-22.04 values.yaml to remote host
+      copy:
+        src: ../../arc-runners/ubuntu-22.04/values.yaml
+        dest: /tmp/ubuntu-22.04-values.yaml
+        mode: '0644'
+
+    - name: Install ubuntu-22.04 runner scale set
+      command: >
+        helm upgrade ubuntu-22.04-self-hosted
+        --install
+        --namespace arc-runners
+        -f /tmp/ubuntu-22.04-values.yaml
+        --set githubConfigSecret=pre-defined-secret
+        --set githubConfigUrl=https://github.com/pyvista
+        oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml

@@ -1,0 +1,217 @@
+---
+- name: Deploy K3s cluster
+  hosts: k3s_cluster
+  become: yes
+  tasks:
+    - debug:
+        msg: "K3s cluster deployed"
+
+- name: Install NVIDIA 575 driver on agent nodes
+  hosts: agent
+  become: yes
+  tasks:
+    - name: Install prerequisites
+      apt:
+        name:
+          - build-essential
+          - linux-headers-{{ ansible_kernel }}
+        state: present
+        update_cache: yes
+      when: install_nvidia | default(false)
+
+    - name: Install NVIDIA 575 server driver
+      apt:
+        name:
+          - nvidia-headless-575-server
+          - nvidia-compute-utils-575-server
+          - nvidia-utils-575-server
+        state: present
+      register: nvidia_pkg
+      when: install_nvidia | default(false)
+
+    - name: Remove conflicting EGL package
+      apt:
+        name:
+          - libnvidia-egl-gbm1
+        state: absent
+      when: install_nvidia | default(false)
+
+    - name: Install NVIDIA 575 GL server package
+      apt:
+        name:
+          - libnvidia-gl-575-server
+        state: present
+      when: install_nvidia | default(false)
+
+    - name: Reboot after NVIDIA driver install if packages changed
+      reboot:
+        msg: "Rebooting to activate NVIDIA driver"
+        pre_reboot_delay: 5
+        reboot_timeout: 600
+      when:
+        - install_nvidia | default(false)
+        - nvidia_pkg is changed
+
+    - name: Verify NVIDIA driver
+      command: nvidia-smi
+      register: nvidia_status
+      changed_when: false
+      ignore_errors: yes
+      when: install_nvidia | default(false)
+
+    - debug:
+        var: nvidia_status.stdout
+      when: install_nvidia | default(false)
+
+
+
+- name: Configure NVIDIA GPU support in K3s
+  hosts: agent
+  become: yes
+  tasks:
+  - name: Gather installed packages
+    package_facts:
+      manager: apt
+
+  - name: Add NVIDIA Container Toolkit repository with key
+    shell: |
+      curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+        gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg && \
+      curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+        sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+        tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+    args:
+      executable: /bin/bash
+      creates: /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+    become: yes
+    register: nvidia_repo_added
+    changed_when: nvidia_repo_added.rc == 0
+    failed_when: nvidia_repo_added.rc != 0
+    when: install_nvidia | default(false) and
+          not (ansible_facts['packages'] is defined and 'nvidia-container-toolkit' in ansible_facts.packages)
+
+  - name: Update apt cache
+    apt:
+      update_cache: yes
+    become: yes
+    when: nvidia_repo_added is changed
+
+  - name: Install NVIDIA Container Toolkit 1.17.7
+    apt:
+      name:
+        - "nvidia-container-toolkit=1.17.7-1"
+        - "nvidia-container-toolkit-base=1.17.7-1"
+        - "libnvidia-container-tools=1.17.7-1"
+        - "libnvidia-container1=1.17.7-1"
+      state: present
+    become: yes
+    register: nvidia_toolkit_pkg
+    when: 
+      - install_nvidia | default(false)
+      - "'1.17.7-1' not in ansible_facts.packages['nvidia-container-toolkit'] | map(attribute='version') | list"
+
+  - name: Restart the K3s to apply NVIDIA Container Toolkit
+    service:
+      name: k3s-agent
+      state: restarted
+    become: yes
+    when: nvidia_toolkit_pkg is changed
+
+
+- name: Ensure Helm is installed
+  hosts: server[0]
+  become: yes
+  tasks:
+    - name: Check if helm is already installed
+      command: helm version --short
+      register: helm_check
+      failed_when: false
+      changed_when: false
+
+    - name: Add Helm apt key
+      apt_key:
+        url: https://baltocdn.com/helm/signing.asc
+        state: present
+      when: helm_check.rc != 0
+
+    - name: Add Helm apt repository
+      apt_repository:
+        repo: "deb https://baltocdn.com/helm/stable/debian/ all main"
+        state: present
+        filename: helm-stable-debian
+      when: helm_check.rc != 0
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      when: helm_check.rc != 0
+
+    - name: Install Helm
+      apt:
+        name: helm
+        state: present
+      when: helm_check.rc != 0
+
+- name: Deploy NVIDIA GPU Operator
+  hosts: server[0]
+  become: yes
+  tasks:
+    - name: Check if NVIDIA GPU Operator release exists
+      command: helm status nvidiagpu -n gpu-operator
+      register: gpuop_status
+      failed_when: false
+      changed_when: false
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Add NVIDIA Helm repo
+      command: helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+      args:
+        creates: /root/.cache/helm/repository/nvidia-index.yaml
+      when: gpuop_status.rc != 0
+
+    - name: Update Helm repos
+      command: helm repo update
+      when: gpuop_status.rc != 0
+
+    - name: Ensure gpu-operator namespace exists
+      shell: kubectl get namespace gpu-operator || kubectl create namespace gpu-operator
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+    
+    - name: Copy time slicing config
+      copy:
+        src: cluster-config/time-slicing-config-all.yaml
+        dest: /tmp/time-slicing-config-all.yaml
+        mode: '0644'
+    
+    - name: Apply time-slicing ConfigMap
+      command: kubectl apply -n gpu-operator -f /tmp/time-slicing-config-all.yaml
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+    
+    - name: Install NVIDIA GPU Operator with time-slicing
+      command: >
+        helm upgrade --install --wait nvidiagpu
+        -n gpu-operator --create-namespace
+        --set toolkit.env[0].name=CONTAINERD_CONFIG
+        --set toolkit.env[0].value=/var/lib/rancher/k3s/agent/etc/containerd/config.toml
+        --set toolkit.env[1].name=CONTAINERD_SOCKET
+        --set toolkit.env[1].value=/run/k3s/containerd/containerd.sock
+        --set toolkit.env[2].name=CONTAINERD_RUNTIME_CLASS
+        --set toolkit.env[2].value=nvidia
+        --set toolkit.env[3].name=CONTAINERD_SET_AS_DEFAULT
+        --set-string toolkit.env[3].value=true
+        nvidia/gpu-operator
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      # when: gpuop_status.rc != 0
+
+    - name: patch clusterpolicy
+      command: >
+        kubectl patch clusterpolicies.nvidia.com/cluster-policy
+        -n gpu-operator --type merge
+        -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      # when: gpuop_status.rc != 0

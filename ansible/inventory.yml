@@ -1,0 +1,23 @@
+---
+k3s_cluster:
+  children:
+    server:
+      hosts:
+        10.30.0.4:  # rasp5-0
+        10.30.0.5:  # rasp5-1
+        10.30.0.6:  # rasp5-2
+    agent:
+      hosts:
+        10.30.0.8: # sr630-node-0
+        10.30.0.9: # sr630-node-1
+        10.30.0.10: # sr630-node-2
+      vars:
+        install_nvidia: true
+
+  vars:
+    ansible_port: 22
+    ansible_user: rasp-cnode
+    ansible_become: yes
+    k3s_version: v1.31.11+k3s1
+    token: "{{ k3s_token }}"
+    api_endpoint: "{{ hostvars[groups['server'][0]]['ansible_host'] | default(groups['server'][0]) }}"

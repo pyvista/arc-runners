@@ -1,0 +1,18 @@
+# Allow for several pods to access the same GPU similtaniously.
+
+# PyVista's unit tests have a generally low memory overhead, even with multi-threaded testing.
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: time-slicing-config-all
+data:
+  any: |-
+    version: v1
+    flags:
+      migStrategy: none
+    sharing:
+      timeSlicing:
+        resources:
+        - name: nvidia.com/gpu
+          replicas: 4
