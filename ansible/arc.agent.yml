@@ -29,14 +29,14 @@
       copy:
         src: ../../arc-runners/gh-app-secret.yaml
         dest: /tmp/gh-app-secret.yaml
-        mode: '0644'
+        mode: "0644"
 
     - name: Apply ARC pre-defined secret if not present
       shell: |
         kubectl get secret gh-app-secret --kubeconfig=/etc/rancher/k3s/k3s.yaml >/dev/null 2>&1 || \
         kubectl apply -f /tmp/gh-app-secret.yaml --kubeconfig=/etc/rancher/k3s/k3s.yaml
       changed_when: "'configured' in result.stdout or result.rc == 0"
-      register: result      
+      register: result
 
 - name: Deploy ARC Runner Scale Set
   hosts: server[0]
@@ -46,7 +46,7 @@
       copy:
         src: ../../arc-runners/ubuntu-24.04-gpu/values.yaml
         dest: /tmp/ubuntu-24.04-gpu-values.yaml
-        mode: '0644'
+        mode: "0644"
 
     - name: Install ubuntu-24.04-gpu runner scale set
       command: >
@@ -64,7 +64,7 @@
       copy:
         src: ../../arc-runners/ubuntu-22.04/values.yaml
         dest: /tmp/ubuntu-22.04-values.yaml
-        mode: '0644'
+        mode: "0644"
 
     - name: Install ubuntu-22.04 runner scale set
       command: >

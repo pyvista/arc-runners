@@ -32,7 +32,7 @@ Nodes:
 
 ##### Agent Nodes
 
-Hardware: 
+Hardware:
 - [Lenovo SR630 v2](https://lenovopress.lenovo.com/lp1391-thinksystem-sr630-v2-server)
 - 2x Intel(R) Xeon(R) Gold 6246 CPU @ 3.30GHz
 - 188Gi DDR4 RAM

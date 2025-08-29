@@ -101,7 +101,7 @@ docker run --gpus all -it kinetica/nvidia-opengl:ubuntu24.04
 Test for GPU visibility and EGL info:
 
 ```
-nvidia-smi 
+nvidia-smi
 apt-get update && apt-get install mesa-utils-extra -y && eglinfo | grep NVIDIA
 ```
 

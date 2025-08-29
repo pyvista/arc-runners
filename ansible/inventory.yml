@@ -3,9 +3,9 @@ k3s_cluster:
   children:
     server:
       hosts:
-        10.30.0.4:  # rasp5-0
-        10.30.0.5:  # rasp5-1
-        10.30.0.6:  # rasp5-2
+        10.30.0.4: # rasp5-0
+        10.30.0.5: # rasp5-1
+        10.30.0.6: # rasp5-2
     agent:
       hosts:
         10.30.0.8: # sr630-node-0
