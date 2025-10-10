@@ -1,0 +1,23 @@
+- name: Deploy local PV and cache
+  hosts: server[0]
+  become: yes
+  tasks:
+
+    - name: Apply local StorageClass
+      command: kubectl apply -f ~/local-cache/local-storage-sc.yaml
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Apply PersistentVolume
+      command: kubectl apply -f ~/local-cache/pv.yaml
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Install/Upgrade cache Helm release
+      command: >
+        helm upgrade --install gha-cache ./gha-cache-chart
+        -f ~/local-cache/values.yaml
+        --namespace actions-cache
+        --create-namespace
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
