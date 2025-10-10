@@ -37,6 +37,7 @@ jobs:
           tags: |
             ghcr.io/pyvista/arc-runners:ubuntu22.04-${{ github.sha }}
             ghcr.io/pyvista/arc-runners:ubuntu22.04-latest
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -72,6 +73,7 @@ jobs:
           tags: |
             ghcr.io/pyvista/arc-runners:ubuntu24.04-gpu-${{ github.sha }}
             ghcr.io/pyvista/arc-runners:ubuntu24.04-gpu-latest
+          load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
