@@ -1,0 +1,35 @@
+global
+    log /dev/log    local0
+    maxconn 4096
+    daemon
+    stats socket /run/haproxy/admin.sock mode 600 level admin
+
+defaults
+    log     global
+    mode    tcp
+    option  tcplog
+    timeout connect 5000ms
+    timeout client  50000ms
+    timeout server  50000ms
+
+frontend k3s_front
+    bind *:16443
+    default_backend k3s_back
+
+backend k3s_back
+{% for ip in k3s_server_ips %}
+    server k3s-{{ loop.index }} {{ ip }}:{{ haproxy_backend_port }} check
+{% endfor %}
+
+frontend https-in
+    bind *:9443
+    mode tcp
+    default_backend rancher-backend
+
+backend rancher-backend
+    mode tcp
+    balance roundrobin
+{% for ip in k3s_server_ips %}
+    server k3s-{{ loop.index }} {{ ip }}:443 check
+{% endfor %}
+

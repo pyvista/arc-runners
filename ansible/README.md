@@ -11,7 +11,13 @@ ansible-galaxy collection install git+https://github.com/k3s-io/k3s-ansible.git
 Set up the cluster with:
 
 ```bash
-ansible-playbook -i inventory.yml wrapper.yml
+ANSIBLE_BECOME_PASS="<REDACTED>" ansible-playbook -i inventory.yml wrapper.yml
+```
+
+Update using an individual playbook with:
+
+```bash
+ANSIBLE_BECOME_PASS="<REDACTED>" ansible-playbook -i inventory.yml arc.agent.yml
 ```
 
 ### Cluster Configuration
@@ -41,3 +47,5 @@ Hardware:
 
 Nodes:
 - 10.30.0.8: # sr630-node-0
+- 10.30.0.9: # sr630-node-1
+- 10.30.0.10: # sr630-node-2

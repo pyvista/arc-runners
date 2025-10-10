@@ -1,0 +1,30 @@
+nameOverride: gha-actions-cache-server
+
+service:
+  type: ClusterIP
+  port: 80
+
+persistentVolumeClaim:
+  enabled: true
+  template:
+    metadata:
+      name: cache-data
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 1800Gi
+      volumeMode: Filesystem
+      storageClassName: local-storage
+
+nodeSelector:
+  kubernetes.io/hostname: sr630-node-2
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
