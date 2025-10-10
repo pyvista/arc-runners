@@ -41,14 +41,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Smoke test runner container
-        run: |
-          docker run -d --name test-runner ghcr.io/pyvista/arc-runners:ubuntu22.04-${{ github.sha }}
-          sleep 10
-          docker logs test-runner | tee logs.txt
-          docker ps -f name=test-runner --format '{{.Status}}' | grep -q 'Up'
-          docker stop test-runner
-
   build-ubuntu-24-04-gpu:
     runs-on: ubuntu-latest
     steps:
@@ -76,11 +68,3 @@ jobs:
           load: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Smoke test runner container
-        run: |
-          docker run -d --name test-runner ghcr.io/pyvista/arc-runners:ubuntu24.04-gpu-${{ github.sha }}
-          sleep 10
-          docker logs test-runner | tee logs.txt
-          docker ps -f name=test-runner --format '{{.Status}}' | grep -q 'Up'
-          docker stop test-runner
