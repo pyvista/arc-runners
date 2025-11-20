@@ -2,7 +2,6 @@
   hosts: server[0]
   become: yes
   tasks:
-
     - name: Apply local StorageClass
       command: kubectl apply -f ~/local-cache/local-storage-sc.yaml
       environment:

@@ -106,8 +106,9 @@
       register: nvidia_toolkit_pkg
       when:
         - install_nvidia | default(false)
-        - "'nvidia-container-toolkit' not in ansible_facts.packages or
-       '1.17.7-1' not in ansible_facts.packages['nvidia-container-toolkit'] | map(attribute='version') | list"
+        - >
+          'nvidia-container-toolkit' not in ansible_facts.packages or
+          '1.17.7-1' not in ansible_facts.packages['nvidia-container-toolkit'] | map(attribute='version') | list
 
     - name: Restart K3s to apply NVIDIA Container Toolkit
       service:

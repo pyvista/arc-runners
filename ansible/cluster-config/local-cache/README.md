@@ -1,6 +1,6 @@
 ### GHA Cache Server Configuration
 
-Using Documentation from [GHA Cahce Server - Getting Started](https://gha-cache-server.falcondev.io/getting-started)
+Using Documentation from [GHA Cache Server - Getting Started](https://gha-cache-server.falcondev.io/getting-started)
 
 For now, using [hostpath](https://kubernetes.io/docs/concepts/storage/volumes/#hostpath) storage until additional storage arrives and we can use a [local PersistentVolume](https://kubernetes.io/docs/concepts/storage/volumes/#local) instead.
 
