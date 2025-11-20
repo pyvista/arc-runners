@@ -71,13 +71,7 @@ jobs:
 
       - name: Verify that PyVista works
         run: |
-          docker run --rm \
-            ghcr.io/pyvista/arc-runners:ubuntu24.04-latest \
-            /bin/bash -c "python3 -m venv /tmp/venv && \
-                          . /tmp/venv/bin/activate && \
-                          pip install --upgrade pip pyvista && \
-                          python3 -c 'import pyvista as pv; pv.Sphere().plot(screenshot=\"/tmp/tmp.png\")' && \
-                          [ -s /tmp/tmp.png ]"
+          docker run --rm ghcr.io/pyvista/arc-runners:ubuntu24.04-latest /bin/bash -c "python3 -m venv /tmp/venv && . /tmp/venv/bin/activate && pip install --upgrade pip pyvista && python3 -c 'import pyvista as pv; pv.Sphere().plot(screenshot=\"/tmp/tmp.png\")' && [ -s /tmp/tmp.png ]"
 
   build-ubuntu-24-04-gpu:
     runs-on: ubuntu-latest
