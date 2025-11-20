@@ -32,4 +32,3 @@ backend rancher-backend
 {% for ip in k3s_server_ips %}
     server k3s-{{ loop.index }} {{ ip }}:443 check
 {% endfor %}
-
