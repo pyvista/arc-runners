@@ -77,3 +77,21 @@
         oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Copy ubuntu-24.04 values.yaml to remote host
+      copy:
+        src: ../../arc-runners/ubuntu-24.04/values.yaml
+        dest: /tmp/ubuntu-24.04-values.yaml
+        mode: "0644"
+
+    - name: Install ubuntu-24.04 runner scale set
+      command: >
+        helm upgrade ubuntu-24.04-self-hosted
+        --install
+        --namespace arc-runners
+        -f /tmp/ubuntu-24.04-values.yaml
+        --set githubConfigSecret=pre-defined-secret
+        --set githubConfigUrl=https://github.com/pyvista
+        oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
