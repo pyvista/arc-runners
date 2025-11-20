@@ -8,7 +8,7 @@ template:
     runtimeClassName: nvidia
     containers:
       - name: runner
-        image: ghcr.io/pyvista/arc-runners:ubuntu24.04-gpu-6bcf1d8e2a273bcbe28a4f901c7be6547a6fc5cc
+        image: ghcr.io/pyvista/arc-runners:ubuntu24.04-gpu-49a4f7aec4061da2de8730e9b13a85199e96b333
         imagePullPolicy: Always
         command: ["/home/runner/run.sh"]
         env:
