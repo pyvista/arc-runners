@@ -7,7 +7,7 @@ template:
   spec:
     containers:
       - name: runner
-        image: ghcr.io/pyvista/arc-runners:ubuntu22.04-latest
+        image: ghcr.io/pyvista/arc-runners:ubuntu24.04-latest
         imagePullPolicy: Always
         command: ["/home/runner/run.sh"]
         env:
