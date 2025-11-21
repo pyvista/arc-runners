@@ -67,6 +67,7 @@ RUN apt update -y \
     zstd \
     python3.12-venv \
     python3.12-dev \
+    python-is-python3 \
     build-essential \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 \
