@@ -94,21 +94,22 @@
       become: yes
       when: nvidia_repo_added is changed
 
-    - name: Install NVIDIA Container Toolkit 1.17.7
+    - name: Get installed nvidia-container-toolkit version
+      command: dpkg-query -W -f='${Version}' nvidia-container-toolkit
+      register: nvidia_ctk_ver
+      ignore_errors: yes
+
+    - name: Install NVIDIA Container Toolkit 1.18.1
       apt:
         name:
-          - "nvidia-container-toolkit=1.17.7-1"
-          - "nvidia-container-toolkit-base=1.17.7-1"
-          - "libnvidia-container-tools=1.17.7-1"
-          - "libnvidia-container1=1.17.7-1"
+          - "nvidia-container-toolkit=1.18.1-1"
+          - "nvidia-container-toolkit-base=1.18.1-1"
+          - "libnvidia-container-tools=1.18.1-1"
+          - "libnvidia-container1=1.18.1-1"
         state: present
       become: yes
       register: nvidia_toolkit_pkg
-      when:
-        - install_nvidia | default(false)
-        - >
-          'nvidia-container-toolkit' not in ansible_facts.packages or
-          '1.17.7-1' not in ansible_facts.packages['nvidia-container-toolkit'] | map(attribute='version') | list
+      when: nvidia_ctk_ver.rc != 0 or nvidia_ctk_ver.stdout.strip() != "1.18.1-1"
 
     - name: Restart K3s to apply NVIDIA Container Toolkit
       service:

@@ -24,7 +24,7 @@ template:
         resources:
           requests:
             cpu: "2"
-            memory: "8Gi"
+            memory: "2Gi"
           limits:
             cpu: "8"
             memory: "32Gi"

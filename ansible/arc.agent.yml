@@ -2,6 +2,33 @@
   hosts: server[0]
   become: yes
   tasks:
+    - name: Check if CoreDNS exists
+      command: helm status coredns -n kube-system
+      register: coredns_status
+      failed_when: false
+      changed_when: false
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Patch CoreDNS forwarders
+      kubernetes.core.k8s:
+        kubeconfig: /etc/rancher/k3s/k3s.yaml
+        kind: ConfigMap
+        namespace: kube-system
+        name: coredns
+        merge_type: strategic-merge
+        definition:
+          data:
+            Corefile: "{{ lookup('k8s', kind='ConfigMap', namespace='kube-system', name='coredns', kubeconfig='/etc/rancher/k3s/k3s.yaml').data.Corefile | regex_replace('forward \\..*', 'forward . 8.8.8.8 1.1.1.1') }}"
+      register: coredns_patch
+      when: coredns_status.rc == 0
+
+    - name: Restart CoreDNS
+      command: kubectl rollout restart deployment/coredns -n kube-system
+      when: coredns_patch is changed
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
     - name: Check if ARC Helm release exists
       command: helm status arc -n arc-systems
       register: arc_status
@@ -57,6 +84,7 @@
         --set githubConfigSecret=pre-defined-secret
         --set githubConfigUrl=https://github.com/pyvista
         oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+        --version 0.12.1
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
@@ -75,23 +103,6 @@
         --set githubConfigSecret=pre-defined-secret
         --set githubConfigUrl=https://github.com/pyvista
         oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-      environment:
-        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-
-    - name: Copy ubuntu-24.04 values.yaml to remote host
-      copy:
-        src: ../../arc-runners/ubuntu-24.04/values.yaml
-        dest: /tmp/ubuntu-24.04-values.yaml
-        mode: "0644"
-
-    - name: Install ubuntu-24.04 runner scale set
-      command: >
-        helm upgrade ubuntu-24.04-self-hosted
-        --install
-        --namespace arc-runners
-        -f /tmp/ubuntu-24.04-values.yaml
-        --set githubConfigSecret=pre-defined-secret
-        --set githubConfigUrl=https://github.com/pyvista
-        oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
+        --version 0.12.1
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
