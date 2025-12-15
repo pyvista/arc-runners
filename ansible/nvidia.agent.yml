@@ -19,12 +19,12 @@
         update_cache: yes
       when: install_nvidia | default(false)
 
-    - name: Install NVIDIA 575 server driver
+    - name: Install NVIDIA 580 server driver
       apt:
         name:
-          - nvidia-headless-575-server
-          - nvidia-compute-utils-575-server
-          - nvidia-utils-575-server
+          - nvidia-headless-580-server
+          - nvidia-compute-utils-580-server
+          - nvidia-utils-580-server
         state: present
       register: nvidia_pkg
       when: install_nvidia | default(false)
@@ -36,10 +36,10 @@
         state: absent
       when: install_nvidia | default(false)
 
-    - name: Install NVIDIA 575 GL server package
+    - name: Install NVIDIA 580 GL server package
       apt:
         name:
-          - libnvidia-gl-575-server
+          - libnvidia-gl-580-server
         state: present
       when: install_nvidia | default(false)
 
