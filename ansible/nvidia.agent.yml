@@ -6,7 +6,7 @@
     - debug:
         msg: "K3s cluster deployed"
 
-- name: Install NVIDIA 575 driver on agent nodes
+- name: Install NVIDIA 580 driver on agent nodes
   hosts: agent
   become: yes
   tasks:
@@ -63,6 +63,20 @@
         var: nvidia_status.stdout
       when: install_nvidia | default(false)
 
+    # disable automatic updates as upgrading nvidia drivers may result in an
+    # incompatibility with the nvidia-container toolkit
+    - name: Disable automatic apt updates/upgrades
+      ansible.builtin.systemd:
+        name: apt-daily.timer
+        enabled: false
+        state: stopped
+
+    - name: Disable apt-daily-upgrade timer
+      ansible.builtin.systemd:
+        name: apt-daily-upgrade.timer
+        enabled: false
+        state: stopped
+
 - name: Configure NVIDIA GPU support in K3s
   hosts: agent
   become: yes
@@ -99,6 +113,7 @@
       register: nvidia_ctk_ver
       ignore_errors: yes
 
+    # This must match the compatible toolkit for nvidia-headless-580-server
     - name: Install NVIDIA Container Toolkit 1.18.1
       apt:
         name:
