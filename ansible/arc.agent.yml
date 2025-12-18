@@ -29,23 +29,23 @@
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
-    - name: Check if ARC Helm release exists
-      command: helm status arc -n arc-systems
+    - name: Get ARC Helm release info
+      command: helm status arc -n arc-systems -o json
       register: arc_status
       failed_when: false
       changed_when: false
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
-    - name: Install ARC Scale Set Controller
+    - name: Ensure ARC is installed at 0.13.0
       command: >
-        helm install arc
+        helm upgrade --install arc
+        oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
         --namespace arc-systems
         --create-namespace
-        oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set-controller
+        --version 0.13.0
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-      when: arc_status.rc != 0
 
     - name: Ensure arc-runners namespace exists
       shell: kubectl create namespace arc-runners --dry-run=client -o yaml | kubectl apply -f -
@@ -84,7 +84,7 @@
         --set githubConfigSecret=pre-defined-secret
         --set githubConfigUrl=https://github.com/pyvista
         oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-        --version 0.12.1
+        --version 0.13.0
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
@@ -103,6 +103,6 @@
         --set githubConfigSecret=pre-defined-secret
         --set githubConfigUrl=https://github.com/pyvista
         oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-        --version 0.12.1
+        --version 0.13.0
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
