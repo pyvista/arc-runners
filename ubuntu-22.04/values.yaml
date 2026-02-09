@@ -42,5 +42,5 @@ template:
     volumes:
       - name: toolcache
         hostPath:
-          path: /var/lib/runner-toolcache
+          path: /var/lib/runner-toolcache-22.04
           type: DirectoryOrCreate
