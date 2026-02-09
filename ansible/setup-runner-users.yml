@@ -1,0 +1,34 @@
+---
+- name: Prepare ARC runner users and directories on agent nodes
+  hosts: agent
+  become: yes
+  tasks:
+    - name: Ensure runner group exists
+      group:
+        name: runner
+        gid: 1001
+        state: present
+
+    - name: Ensure runner user exists
+      user:
+        name: runner
+        uid: 1001
+        group: runner
+        create_home: no
+        shell: /usr/sbin/nologin
+
+    - name: Ensure hostPath directory exists with correct permissions
+      file:
+        path: /var/lib/runner-toolcache-22.04
+        state: directory
+        owner: 1001
+        group: 1001
+        mode: "0755"
+
+    - name: Ensure hostPath directory exists with correct permissions
+      file:
+        path: /var/lib/runner-toolcache-24.04
+        state: directory
+        owner: 1001
+        group: 1001
+        mode: "0755"
