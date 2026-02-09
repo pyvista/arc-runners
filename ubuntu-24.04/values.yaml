@@ -5,12 +5,20 @@
 githubConfigUrl: "https://github.com/pyvista"
 template:
   spec:
+    securityContext:
+      runAsUser: 1001
+      runAsGroup: 1001
+      fsGroup: 1001
     containers:
       - name: runner
         image: ghcr.io/pyvista/arc-runners:ubuntu24.04-latest
         imagePullPolicy: Always
         command: ["/home/runner/run.sh"]
         env:
+          - name: RUNNER_TOOL_CACHE
+            value: /opt/hostedtoolcache
+          - name: AGENT_TOOLSDIRECTORY
+            value: /opt/hostedtoolcache
           - name: ACTIONS_RESULTS_URL
             value: "http://gha-actions-cache-gha-actions-cache-server.actions-cache.svc.cluster.local/"
           - name: CUSTOM_ACTIONS_RESULTS_URL
@@ -21,6 +29,9 @@ template:
             value: "http://devpi.devpi.svc.cluster.local/root/pypi"
           - name: UV_INDEX
             value: "http://devpi.devpi.svc.cluster.local/root/pypi"
+        volumeMounts:
+          - name: toolcache
+            mountPath: /opt/hostedtoolcache
         resources:
           requests:
             cpu: "2"
@@ -28,3 +39,8 @@ template:
           limits:
             cpu: "8"
             memory: "32Gi"
+    volumes:
+      - name: toolcache
+        hostPath:
+          path: /var/lib/runner-toolcache
+          type: DirectoryOrCreate
