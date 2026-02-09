@@ -84,7 +84,7 @@
         --set githubConfigSecret=pre-defined-secret
         --set githubConfigUrl=https://github.com/pyvista
         oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-        --version 0.12.1
+        --version 0.13.0
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
 
@@ -103,6 +103,6 @@
         --set githubConfigSecret=pre-defined-secret
         --set githubConfigUrl=https://github.com/pyvista
         oci://ghcr.io/actions/actions-runner-controller-charts/gha-runner-scale-set
-        --version 0.12.1
+        --version 0.13.0
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
