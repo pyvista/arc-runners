@@ -65,11 +65,14 @@ RUN apt-get update -y \
     libxi6 \
     libxext6 \
     libosmesa6 \
+    libosmesa6-dev \ 
+    libgl1-mesa-dev \
+    python3-tk \
+    pandoc \ 
+    git-restore-mtime \
     libegl1 \
     libegl1-mesa-dev \
     libglx-mesa0 \
-    python3-tk \
-    pandoc \
     make \
     cpio \
     && locale-gen en_US.UTF-8 \
