@@ -59,10 +59,13 @@ RUN apt update -y \
     libxi6 \
     libxext6 \
     libosmesa6 \
+    libosmesa6-dev \ 
+    libgl1-mesa-dev \
+    python3-tk \
+    pandoc \ 
+    git-restore-mtime \
     libegl1 \
     libegl-mesa0 \
-    python3-tk \
-    pandoc \
     make \
     zstd \
     python3.12-venv \
@@ -71,6 +74,9 @@ RUN apt update -y \
     build-essential \
     libxcursor1 \
     libxfixes3 \
+    texlive-latex-extra \
+    latexmk \
+    zip \
     x11-xserver-utils \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 \
