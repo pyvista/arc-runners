@@ -76,6 +76,7 @@ RUN apt update -y \
     libxfixes3 \
     texlive-latex-extra \
     texlive-fonts-recommended \
+    tex-gyre \
     latexmk \
     zip \
     x11-xserver-utils \
