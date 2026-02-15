@@ -75,6 +75,7 @@ RUN apt update -y \
     libxcursor1 \
     libxfixes3 \
     texlive-latex-extra \
+    texlive-fonts-recommended \
     latexmk \
     zip \
     x11-xserver-utils \
