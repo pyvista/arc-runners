@@ -80,6 +80,10 @@ RUN apt update -y \
     latexmk \
     zip \
     x11-xserver-utils \
+    libsuitesparse-dev \
+    libblas-dev \
+    swig pkg-config \
+    libxkbcommon-x11-0 \
     && locale-gen en_US.UTF-8 \
     && update-locale LANG=en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
