@@ -7,12 +7,16 @@ k3s_cluster:
         10.30.0.5: # rasp5-1
         10.30.0.6: # rasp5-2
     agent:
+      vars:
+        install_nvidia: true
+
       hosts:
         10.30.0.8: # sr630-node-0
         10.30.0.9: # sr630-node-1
         10.30.0.10: # sr630-node-2
-      vars:
-        install_nvidia: true
+
+        10.30.0.12: # sr630-node-3
+          install_nvidia: false
 
   vars:
     ansible_port: 22
