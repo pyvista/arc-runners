@@ -10,7 +10,7 @@ Apply those in this directory with:
 kubectl apply -f pv.yaml
 ```
 
-This will create a pv and pvc on `sr630-node-2`. The GHA actions cache has been configured to also be on the same node to access the storage.
+This will create a pv and pvc on `sr630-node-3`. The GHA actions cache has been configured to also be on the same node to access the storage.
 
 ```
 helm install gha-actions-cache oci://ghcr.io/falcondev-oss/charts/github-actions-cache-server \

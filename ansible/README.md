@@ -39,13 +39,14 @@ Nodes:
 ##### Agent Nodes
 
 Hardware:
-- [Lenovo SR630 v2](https://lenovopress.lenovo.com/lp1391-thinksystem-sr630-v2-server)
+- [Lenovo SR650 7X06](https://pubs.lenovo.com/sr650/)
 - 2x Intel(R) Xeon(R) Gold 6246 CPU @ 3.30GHz
-- 188Gi DDR4 RAM
-- Quadro P2000 with 5120MiB VRAM
-- 500 GB NVME SSD
+- 80 - 96 GB RAM
+- Quadro P2000 with 5120MiB VRAM or equivalent (Nodes 1-3 only)
+- 500 GB - 2TB NVME SSD
 
 Nodes:
 - 10.30.0.8: # sr630-node-0
 - 10.30.0.9: # sr630-node-1
 - 10.30.0.10: # sr630-node-2
+- 10.30.0.12: # sr630-node-3
