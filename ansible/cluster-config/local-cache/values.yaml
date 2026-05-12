@@ -19,7 +19,7 @@ persistentVolumeClaim:
       storageClassName: local-storage
 
 nodeSelector:
-  kubernetes.io/hostname: sr630-node-2
+  kubernetes.io/hostname: sr630-node-3
 
 resources:
   limits:
